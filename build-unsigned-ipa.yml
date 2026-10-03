@@ -3,34 +3,79 @@ name: Build Unsigned IPA
 on:
   workflow_dispatch:
   push:
-    branches: [ main, master ]
+    branches:
+      - main
 
 jobs:
   build:
-    runs-on: macos-14
+    runs-on: macos-15
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Install XcodeGen
         run: brew install xcodegen
+
       - name: Generate Xcode project
-        run: xcodegen generate
-      - name: Build unsigned app
+        run: |
+          xcodegen generate
+          echo "Generated Xcode projects:"
+          find . -name "*.xcodeproj" -print
+
+      - name: Find Xcode project
+        run: |
+          PROJECT=$(find . -name "*.xcodeproj" -print -quit)
+
+          if [ -z "$PROJECT" ]; then
+            echo "ERROR: No Xcode project was generated."
+            exit 1
+          fi
+
+          echo "Found project: $PROJECT"
+          echo "PROJECT=$PROJECT" >> "$GITHUB_ENV"
+
+      - name: Show project information
+        run: |
+          echo "Using Xcode project:"
+          echo "$PROJECT"
+          xcodebuild -list -project "$PROJECT"
+
+      - name: Build iOS app
         run: |
           xcodebuild \
-            -project 'RussellKestrel.xcodeproj' \
-            -scheme 'RussellKestrel' \
+            -project "$PROJECT" \
+            -scheme RussellKestrel \
             -sdk iphoneos \
             -configuration Release \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             build
-      - name: Package app
+
+      - name: Find built app
         run: |
-          APP=$(find ~/Library/Developer/Xcode/DerivedData -path '*Build/Products/Release-iphoneos/RussellKestrel.app' -type d | head -1)
-          mkdir -p Payload
+          echo "Searching for application:"
+          find . -name "*.app" -type d -print
+
+      - name: Package unsigned IPA
+        run: |
+          APP=$(find . -path "*/Release-iphoneos/*.app" -type d -print -quit)
+
+          if [ -z "$APP" ]; then
+            echo "ERROR: Built .app was not found."
+            exit 1
+          fi
+
+          echo "Using app: $APP"
+
+          rm -rf Payload
+          mkdir Payload
           cp -R "$APP" Payload/
-          zip -r Russell-Kestrel-iOS-0.4-unsigned.ipa Payload
-      - uses: actions/upload-artifact@v4
+
+          zip -r RussellKestrel-unsigned.ipa Payload
+
+      - name: Upload unsigned IPA
+        uses: actions/upload-artifact@v4
         with:
-          name: Russell-Kestrel-iOS-0.4-unsigned-ipa
-          path: Russell-Kestrel-iOS-0.4-unsigned.ipa
+          name: RussellKestrel-unsigned-IPA
+          path: RussellKestrel-unsigned.ipa
