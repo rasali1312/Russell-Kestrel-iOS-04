@@ -17,11 +17,6 @@ jobs:
       - name: Install XcodeGen
         run: brew install xcodegen
 
-      - name: Find project.yml
-        run: |
-          echo "Project files:"
-          find . -name "project.yml" -print
-
       - name: Generate Xcode project
         run: |
           xcodegen generate
@@ -30,18 +25,23 @@ jobs:
 
       - name: Find Xcode project
         run: |
-          PROJECT=$(find . -name "RussellKestrel.xcodeproj" -print -quit)
+          PROJECT=$(find . -name "*.xcodeproj" -print -quit)
+
           if [ -z "$PROJECT" ]; then
-            echo "ERROR: RussellKestrel.xcodeproj was not generated."
-            echo "All Xcode projects found:"
-            find . -name "*.xcodeproj" -print
+            echo "ERROR: No Xcode project was generated."
             exit 1
           fi
+
+          echo "Found project: $PROJECT"
           echo "PROJECT=$PROJECT" >> "$GITHUB_ENV"
+
+      - name: Show schemes
+        run: |
+          echo "Checking project:"
+          xcodebuild -list -project "$PROJECT"
 
       - name: Build iOS app
         run: |
-          echo "Building: $PROJECT"
           xcodebuild \
             -project "$PROJECT" \
             -scheme RussellKestrel \
@@ -51,15 +51,27 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             build
 
+      - name: Find built app
+        run: |
+          echo "Searching for built application:"
+          find . -name "*.app" -type d -print
+
       - name: Package unsigned IPA
         run: |
-          APP=$(find . -path "*/Release-iphoneos/RussellKestrel.app" -print -quit)
+          APP=$(find . -path "*/Release-iphoneos/*.app" -type d -print -quit)
+
           if [ -z "$APP" ]; then
-            echo "ERROR: RussellKestrel.app not found."
+            echo "ERROR: Built .app was not found."
             exit 1
           fi
-          mkdir -p Payload
-          cp -R "$APP" Payload/RussellKestrel.app
+
+          echo "Using app: $APP"
+
+          rm -rf Payload
+          mkdir Payload
+
+          cp -R "$APP" Payload/
+
           zip -r RussellKestrel-unsigned.ipa Payload
 
       - name: Upload unsigned IPA
