@@ -15,7 +15,8 @@ jobs:
       - name: Generate Xcode project
         run: xcodegen generate
       - name: Build unsigned app
-        run: |
+        run: | 
+        xcodegen generate
           xcodebuild \
             -project 'RussellKestrel.xcodeproj' \
             -scheme 'RussellKestrel' \
