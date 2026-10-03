@@ -1,11 +1,9 @@
-name: Russell Kestrel iOS 04
+name: RussellKestrel
 
 options:
   deploymentTarget:
     iOS: "15.0"
-  xcodeVersion: "15.4"
   createIntermediateGroups: true
-  generateEmptyDirectories: true
 
 settings:
   base:
@@ -19,13 +17,13 @@ targets:
     platform: iOS
 
     sources:
-      - path: Russell Kestrel iOS 04
+      - path: .
 
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.russell.kestrel.ios04
         PRODUCT_NAME: RussellKestrel
-        INFOPLIST_FILE: Russell Kestrel iOS 04/Info.plist
+        INFOPLIST_FILE: Info.plist
         SWIFT_VERSION: "5.0"
         IPHONEOS_DEPLOYMENT_TARGET: "15.0"
         TARGETED_DEVICE_FAMILY: "1,2"
