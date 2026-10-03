@@ -17,13 +17,33 @@ jobs:
       - name: Install XcodeGen
         run: brew install xcodegen
 
+      - name: Find project.yml
+        run: |
+          echo "Project files:"
+          find . -name "project.yml" -print
+
       - name: Generate Xcode project
-        run: xcodegen generate
+        run: |
+          xcodegen generate
+          echo "Generated Xcode projects:"
+          find . -name "*.xcodeproj" -print
+
+      - name: Find Xcode project
+        run: |
+          PROJECT=$(find . -name "RussellKestrel.xcodeproj" -print -quit)
+          if [ -z "$PROJECT" ]; then
+            echo "ERROR: RussellKestrel.xcodeproj was not generated."
+            echo "All Xcode projects found:"
+            find . -name "*.xcodeproj" -print
+            exit 1
+          fi
+          echo "PROJECT=$PROJECT" >> "$GITHUB_ENV"
 
       - name: Build iOS app
         run: |
+          echo "Building: $PROJECT"
           xcodebuild \
-            -project RussellKestrel.xcodeproj \
+            -project "$PROJECT" \
             -scheme RussellKestrel \
             -sdk iphoneos \
             -configuration Release \
@@ -33,13 +53,17 @@ jobs:
 
       - name: Package unsigned IPA
         run: |
+          APP=$(find . -path "*/Release-iphoneos/RussellKestrel.app" -print -quit)
+          if [ -z "$APP" ]; then
+            echo "ERROR: RussellKestrel.app not found."
+            exit 1
+          fi
           mkdir -p Payload
-          cp -R build/Release-iphoneos/RussellKestrel.app Payload/
-          mkdir -p unsigned_ipa
-          zip -r unsigned_ipa/RussellKestrel-unsigned.ipa Payload
+          cp -R "$APP" Payload/RussellKestrel.app
+          zip -r RussellKestrel-unsigned.ipa Payload
 
       - name: Upload unsigned IPA
         uses: actions/upload-artifact@v4
         with:
           name: RussellKestrel-unsigned-IPA
-          path: unsigned_ipa/RussellKestrel-unsigned.ipa
+          path: RussellKestrel-unsigned.ipa
