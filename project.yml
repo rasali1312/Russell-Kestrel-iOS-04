@@ -1,3 +1,4 @@
+
 name: RussellKestrel
 
 options:
@@ -19,13 +20,13 @@ targets:
     platform: iOS
 
     sources:
-      - path: .
+      - path: RussellKestrel
 
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.russell.kestrel.ios04
         PRODUCT_NAME: RussellKestrel
-        INFOPLIST_FILE: Info.plist
+        INFOPLIST_FILE: RussellKestrel/Info.plist
         SWIFT_VERSION: "5.0"
         IPHONEOS_DEPLOYMENT_TARGET: "15.0"
         TARGETED_DEVICE_FAMILY: "1,2"
