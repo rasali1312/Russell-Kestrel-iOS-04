@@ -1,34 +1,37 @@
 name: Russell Kestrel iOS 04
+
 options:
-  bundleIdPrefix: com.russell
   deploymentTarget:
     iOS: "15.0"
+  xcodeVersion: "15.4"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+
 settings:
   base:
-    SWIFT_VERSION: "5.9"
+    SWIFT_VERSION: "5.0"
+    IPHONEOS_DEPLOYMENT_TARGET: "15.0"
     TARGETED_DEVICE_FAMILY: "1,2"
-packages:
-  VLCKit:
-    url: https://github.com/videolan/vlckit.git
-    branch: master
+
 targets:
   RussellKestrel:
     type: application
     platform: iOS
+
     sources:
-      - RussellKestrel
+      - path: Russell Kestrel iOS 04
+
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.russell.kestrelviewer.ios
-        INFOPLIST_FILE: RussellKestrel/Info.plist
-        CODE_SIGN_STYLE: Manual
+        PRODUCT_BUNDLE_IDENTIFIER: com.russell.kestrel.ios04
+        PRODUCT_NAME: RussellKestrel
+        INFOPLIST_FILE: Russell Kestrel iOS 04/Info.plist
+        SWIFT_VERSION: "5.0"
+        IPHONEOS_DEPLOYMENT_TARGET: "15.0"
+        TARGETED_DEVICE_FAMILY: "1,2"
         CODE_SIGNING_ALLOWED: "NO"
         CODE_SIGNING_REQUIRED: "NO"
-    dependencies:
-      - package: VLCKit
-        product: VLCKit
-schemes:
-  RussellKestrel:
-    build:
-      targets:
-        RussellKestrel: all
+
+    scheme:
+      gatherCoverageData: false
+      testTargets: []
