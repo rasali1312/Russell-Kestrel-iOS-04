@@ -1,6 +1,7 @@
 name: RussellKestrel
 
 options:
+  xcodeVersion: "15.4"
   deploymentTarget:
     iOS: "15.0"
   createIntermediateGroups: true
